@@ -1,0 +1,91 @@
+<script type="text/javascript" src="<?php echo $this->bootstrapJS ?>"></script>
+<link rel="stylesheet" href="<?php echo $this->bootstrapCSS ?>" />
+
+
+<style>
+    .clearfix:after {
+        content: ".";
+        display: block;
+        clear: both;
+        visibility: hidden;
+        line-height: 0;
+        height: 0;
+    }
+
+    html,body{height: 100.1%}
+    body{background-color: #7F7F7F!important}
+
+    #lw_fe_inputelement_lw_formular_template{width: 800px;height: 600px;}
+    #tabs ul li a{color: #fff;}
+
+    .activeline {background: #e8f2ff !important;}
+
+    .active{background-color: #777;}
+
+    .description {
+        margin-bottom:5px;
+        border:1px solid #aaa;
+        border-radius: 5px;
+        background-color:#eee;
+        padding:10px;
+    }
+    
+    .description h1{
+        font-size: 20px;
+        font-style: italic;
+        margin-bottom: 15px;
+    }
+    
+    .description p{margin-bottom: 10px;}
+    
+    .description #info{
+        border: 1px solid red;
+        padding: 10px 0 10px 300px;
+        font-size: 16px;
+        background-color: darkred;
+        color: #fff;
+    }
+
+    legend.lwadminform {
+        height: 20px;
+        margin-bottom: 2px;
+        line-height: 20px;
+        width: 130px;
+    }
+    html body div#lwContent div {
+        font-size: 12px!important;
+    }
+
+    fieldset.lwadminform {
+        position: relative;
+    }
+
+
+    html body div#lwLeftnavi div#lwPageTreeNav.lwBoxLeftContent center form#gotoform input#gotoid {
+        width: 45px;
+        margin-bottom: 0;
+    }
+    html body div#lwLeftnavi div#lwPageTreeNav.lwBoxLeftContent center {
+        height: 35px;
+    }    
+
+
+    #container{
+        background-color: #fff;
+        border: 1px solid #bbb;
+        border-radius: 10px;
+        padding: 25px 5px 5px 5px;
+    }
+    
+    #container input{height: 30px;}
+</style>
+
+<div id="greyOverlay">&nbsp;</div>
+
+<fieldset class="lwadminform">
+
+    <legend class="lwadminform"><?php echo $this->module; ?></legend>
+    <div id="container">
+        <?php echo $this->content; ?>
+    </div>
+</fieldset>

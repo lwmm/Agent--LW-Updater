@@ -1,0 +1,71 @@
+<form class="form-horizontal" action="<?php echo $this->actionUrl; ?>" method="POST">
+    <div class="control-group">
+        <label class="control-label" for="inputText">Text</label>
+        <div class="controls">
+            <textarea id="inputText" name="inputText" style="width: 550px;height: 300px;"><?php if (isset($this->array["inputText"]["formInput"])) echo $this->array["inputText"]["formInput"]; ?></textarea>
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label" for="inputPath">Datei Pfad</label>
+        <div class="controls">
+            <select name="configPath">
+                <option value="">Bitte ausw&auml;hlen</option>
+                <?php foreach ($this->paths as $key => $value): ?>
+                    <option value="<?php echo $value; ?>" <?php if (isset($this->array["configPath"]["formInput"]) && $this->array["configPath"]["formInput"] == $value): ?>selected="selected"<?php endif; ?>><?php echo $key; ?></option>
+                <?php endforeach; ?>
+            </select>
+            <span style="font-weight: bold;">/</span> 
+            <input style="width: 313px;" type="text" id="inputPath" name="path" placeholder="Dateipfad" value="<?php if (isset($this->array["path"]["formInput"])) echo $this->array["path"]["formInput"]; ?>">
+        </div>
+    </div>
+    <input type="hidden" name="sent" value="1">
+    <div class="control-group">
+        <div class="controls">
+            <input type="submit" class="btn" value="abschicken">
+        </div>
+    </div>
+</form>
+
+<?php if ($this->array["sent"]): ?>
+
+    <?php
+    $errorPath = false;
+    $identical = false;
+    if (isset($this->array["inputText"]["md5"])) {
+        $inputText = $this->array["inputText"]["md5"];
+    }
+
+    if (isset($this->array["path"]["md5"])) {
+        if ($this->array["path"]["md5"]) {
+            $path = $this->array["path"]["md5"];
+        }
+        else {
+            $path = "angegebene Datei existiert nicht !";
+            $errorPath = true;
+        }
+    }
+    else {
+        $path = "&nbsp;";
+    }
+
+    if ($path == $inputText) {
+        $identical = true;
+    }
+    ?>
+    <table class="table">
+        <thead>
+        <th style="width: 150px;">Type</th>
+        <th>Md5</th>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Texteingabe</td>
+                <td <?php if ($identical) : ?>style="color:darkgreen;font-weight: bold;"<?php endif; ?>><?php echo $inputText; ?></td>
+            </tr>
+            <tr>
+                <td>Datei</td>
+                <td <?php if ($identical) : ?>style="color:darkgreen;font-weight: bold;"<?php endif; ?><?php if ($errorPath) : ?>style="color:darkred;font-weight: bold;"<?php endif; ?>><?php echo $path; ?></td>
+            </tr>
+        </tbody>
+    </table>
+<?php endif; ?>
