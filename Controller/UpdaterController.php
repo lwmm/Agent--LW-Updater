@@ -8,12 +8,14 @@ class UpdaterController
     protected $request;
     protected $respone;
     protected $config;
+    protected $db;
 
-    public function __construct($config, $response, $request)
+    public function __construct($config, $response, $request, $db)
     {
         $this->config = $config;
         $this->respone = $response;
         $this->request = $request;
+        $this->db = $db;
     }
 
     public function execute()
@@ -31,19 +33,28 @@ class UpdaterController
             case "md5checker":
                 if ($this->request->getInt("sent")) {
                     $md5CheckerController = new \AgentUpdater\Controller\Md5CheckerController($this->config, $this->request);
-                    $array = $md5CheckerController->execute($array);
+                    $array = $md5CheckerController->execute();
                 }
                 $md5checkerView = new \AgentUpdater\Views\Md5Checker($this->config);
                 $content = $md5checkerView->render($array);
                 break;
                 
-            case "md5checkerxml":
+            case "systemupdater":
                 if ($this->request->getInt("sent")) {
-                    $md5CheckerXmlController = new \AgentUpdater\Controller\Md5CheckerXmlController($this->config, $this->request);
-                    $array = $md5CheckerXmlController->execute($array);
+                    $systemUpdaterController = new \AgentUpdater\Controller\SystemUpdaterController($this->config, $this->request, $this->db);
+                    $array = $systemUpdaterController->execute();
                 }
-                $md5checkerView = new \AgentUpdater\Views\Md5CheckerXml();
-                $content = $md5checkerView->render($array);
+                $systemUpdaterView = new \AgentUpdater\Views\SystemUpdater();
+                $content = $systemUpdaterView->render($array);
+                break;
+                
+            case "dbupdater":
+                if ($this->request->getInt("sent")) {
+                    $dbUpdaterController = new \AgentUpdater\Controller\DbUpdaterController($this->config, $this->request, $this->db);
+                    $array = $dbUpdaterController->execute();
+                }
+                $dbUpdaterView = new \AgentUpdater\Views\DbUpdater($this->config);
+                $content = $dbUpdaterView->render($array);
                 break;
         }
 

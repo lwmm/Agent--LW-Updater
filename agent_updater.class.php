@@ -24,7 +24,7 @@ class agent_updater extends lw_agent
     protected function showEdit()
     {
         $response = new \AgentUpdater\Services\Response();
-        $controller = new \AgentUpdater\Controller\UpdaterController($this->config, $response, $this->request);
+        $controller = new \AgentUpdater\Controller\UpdaterController($this->config, $response, $this->request, $this->db);
         $controller->execute();
         return $response->getOutputByKey("AgentUpdater");
     }

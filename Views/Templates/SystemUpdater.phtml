@@ -1,0 +1,162 @@
+<form id="xmlForm" class="form-horizontal" action="<?php echo $this->actionUrl; ?>" method="POST" ENCTYPE="multipart/form-data">
+    <div class="control-group">
+        <label class="control-label" for="inputDebug">Debug</label>
+        <div class="controls" style="padding-top: 3px;">
+            <input id="inputDebug" name="debug" type="checkbox" checked="checked" value="1">
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label" for="inputCharset">Zeichensatz</label>
+        <div class="controls">
+            <select id="inputCharset" name="inputCharset">
+                <option value="UTF-8">UTF-8</option>
+                <option value="ISO-8859-15">ISO-8859-15</option>
+            </select>
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label" for="inputXML">XML</label>
+        <div class="controls">
+            <textarea id="inputXML" name="inputXML" style="width: 550px;height: 300px;"><?php if (isset($this->xmlString)) echo $this->xmlString; ?></textarea>
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label" for="inputXMLFile">XML Upload</label>
+        <div class="controls">
+            <input id="inputXMLFile" name="inputXMLFile" type="file">
+        </div>
+    </div>
+    <input type="hidden" name="sent" value="1">
+    <div class="control-group">
+        <div class="controls">
+            <input type="button" class="btn" value="abschicken" onclick="
+                if(!document.getElementById('inputDebug').checked){
+                    if(confirm('Den Updatevorgang starten ?')){
+                        document.getElementById('xmlForm').submit();
+                    }else{
+                        return false;
+                    }
+                }else{
+                    document.getElementById('xmlForm').submit();
+                }
+                document.getElementById('greyOverlay').style.display = 'block';
+                var opts = {
+                    lines: 13, // The number of lines to draw
+                    length: 16, // The length of each line
+                    width: 14, // The line thickness
+                    radius: 25, // The radius of the inner circle
+                    corners: 1, // Corner roundness (0..1)
+                    rotate: 0, // The rotation offset
+                    color: '#ddd', // #rgb or #rrggbb
+                    speed: 1, // Rounds per second
+                    trail: 44, // Afterglow percentage
+                    shadow: true, // Whether to render a shadow
+                    hwaccel: false, // Whether to use hardware acceleration
+                    className: 'spinner', // The CSS class to assign to the spinner
+                    zIndex: 2e9, // The z-index (defaults to 2000000000)
+                    top: '350', // Top position relative to parent in px
+                    left: 'auto' // Left position relative to parent in px
+                };
+                var target = document.getElementById('greyOverlay');
+                var spinner = new Spinner(opts).spin(target);
+                   ">
+        </div>
+    </div>
+</form>
+
+<?php if($this->sent): ?>
+<style>
+    #xmlResults .identical, #xmlResults .ok{
+        font-weight: bold;
+        color: darkgreen;
+    }
+    #xmlResults .error{
+        font-weight: bold;
+        color: darkred;
+    }
+    #xmlResults h3{text-align: center;}
+</style>
+<div id="xmlResults">
+    <?php if(isset($this->xmlResults["fileUpdates"])): ?>
+        <div>
+            <h3>FileUpdates</h3><hr>
+            <p style="text-align: center;">
+                <?php if($this->debug): ?>
+                    <span class="identical">Update m&ouml;glich</span> / <span class="error">Update nicht m&ouml;glich ( md5 Werte nicht identisch / Datei existiert nicht )</span>
+                <?php else: ?>
+                    <span class="identical">Update erfolgreich</span> / <span class="error">Update verweigert ( md5 Werte nicht identisch / Datei existiert nicht )</span>
+                <?php endif; ?>
+            </p>
+            <table id="xmlResultTable" class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Datei</th>
+                        <th>Md5 Xml-Content</th>
+                        <th>Md5 Datei</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($this->xmlResults["fileUpdates"] as $result): ?>
+                        <?php
+                            if($result["md5"] == $result["fileMd5"]){
+                                $class = "identical";
+                            }else{
+                                $class = "error";
+                            }
+                        ?>
+                        <tr>
+                            <td><?php echo $result["filePath"]; ?></td>
+                            <td class="<?php echo $class; ?>"><?php echo $result["md5"]; ?></td>
+                            <td class="<?php echo $class; ?>"><?php if($result["fileMd5"]){ echo $result["fileMd5"];}else{ echo "angegebene Datei existiert nicht !";}; ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    <?php endif; ?>
+    <?php if(isset($this->xmlResults["tableUpdates"])): ?>
+        <div>
+            <h3>TableUpdates</h3><hr>
+            <p style="text-align: center;">
+                <?php if($this->debug): ?>
+                    <span class="ok">Update m&ouml;glich</span> / <span class="error">Update nicht m&ouml;glich</span>
+                <?php else: ?>
+                    <span class="ok">Update erfolgreich</span> / <span class="error">Update verweigert</span>
+                <?php endif; ?>
+            </p>
+            <table id="xmlResultTable" class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Nr.</th>
+                        <th>Tablename</th>
+                        <th>Fieldname</th>
+                        <th>Type</th>
+                        <th>Statement</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php $i = 1; ?>
+                    <?php foreach ($this->xmlResults["tableUpdates"] as $tablename => $values): ?>
+                        <?php foreach($values as $value): ?>
+                            <?php
+                                if(strtolower(substr($value["statement"], 0 , strlen("ERROR"))) == "error"){
+                                    $class = "error";
+                                }else{
+                                    $class = "ok";
+                                }
+                            ?>
+                            <tr>
+                                <td><?php echo $i++; ?></td>
+                                <td><?php echo $tablename; ?></td>
+                                <td><?php echo $value["fieldname"]; ?></td>
+                                <td><?php echo $value["type"]; ?></td>
+                                <td class="<?php echo $class; ?>"><?php echo $value["statement"]; ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    <?php endif; ?>
+</div>
+<?php endif; ?>
