@@ -103,4 +103,71 @@ class OutputSQLStatements
         return false;
     }
 
+    public function createTable($tablename, $fields)
+    {
+        if($this->isTableExisting($tablename)){
+            return "ERROR: TABLE EXISTING";
+        }
+        
+        $main = "";
+        $foot = "";
+
+        $head = "CREATE TABLE IF NOT EXISTS " . $this->db->getPrefix() . $tablename . " ( ";
+
+        foreach ($fields->field as $field) {
+            $main.= $this->_buildField($field);
+        }
+
+
+        if ($fields->pk && strlen($fields->pk) > 0) {
+            $foot = " PRIMARY KEY (" . $fields->pk . ") ";
+        }
+        else {
+            $main = substr($main, 0, -2) . " ";
+        }
+        $foot.= ") ";
+
+        return ($head . $main . $foot);
+    }
+
+    private function _buildField($field)
+    {
+        $out = "";
+        $out.= ' ' . $field->attributes()->name;
+        switch ($field->attributes()->type) {
+            case "number":
+                if ($field->attributes()->size > 11) {
+                    $out.=" bigint(" . $field->attributes()->size . ") ";
+                }
+                else {
+                    $out.= " int(" . $field->attributes()->size . ") ";
+                }
+                break;
+
+            case "text":
+                if ($field->attributes()->size > 255) {
+                    $out.= " text ";
+                }
+                else {
+                    $out.= " varchar(" . $field->attributes()->size . ") ";
+                }
+                break;
+
+            case "clob":
+                $out.= " longtext ";
+                break;
+
+            case "bool":
+                $out.= " int(1) ";
+                break;
+
+            default:
+                die("field not available");
+        }
+        if ($field->attributes()->special == 'auto_increment') {
+            $out.=' auto_increment ';
+        }
+        return $out . ",";
+    }
+
 }

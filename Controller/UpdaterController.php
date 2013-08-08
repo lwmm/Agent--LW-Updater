@@ -47,15 +47,6 @@ class UpdaterController
                 $systemUpdaterView = new \AgentUpdater\Views\SystemUpdater();
                 $content = $systemUpdaterView->render($array);
                 break;
-                
-            case "dbupdater":
-                if ($this->request->getInt("sent")) {
-                    $dbUpdaterController = new \AgentUpdater\Controller\DbUpdaterController($this->config, $this->request, $this->db);
-                    $array = $dbUpdaterController->execute();
-                }
-                $dbUpdaterView = new \AgentUpdater\Views\DbUpdater($this->config);
-                $content = $dbUpdaterView->render($array);
-                break;
         }
 
         $mainView = new \AgentUpdater\Views\MainContainer($this->config);

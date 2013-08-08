@@ -38,6 +38,7 @@ class SystemUpdaterController
             $array["xmlResults"] = $this->prepareXML($xmlString);
             $array["xmlString"] = $xmlString;
             $array["debug"] = $this->debug;
+            $array["charset"] = $this->request->getRaw("inputCharset");
         }
         
         return $array;
@@ -49,11 +50,12 @@ class SystemUpdaterController
 
         $xml = simplexml_load_string($xmlString);
 
-        $prepareXMLClass = new \AgentUpdater\Classes\PrepareXML($this->config, $this->db);
+        $prepareXMLClass = new \AgentUpdater\Classes\PrepareXML($this->config, $this->db, $this->request);
         $prepareXMLClass->setDebug($this->debug);
         
         $array["fileUpdates"] = $prepareXMLClass->fileUpdates($xml->FileUpdates);
-        $array["tableUpdates"] = $prepareXMLClass->tableUpdates($xml->TableUpdates);
+        $array["tableCreates"] = $prepareXMLClass->tableCreates($xml->TableUpdates->create);
+        $array["tableUpdates"] = $prepareXMLClass->tableUpdates($xml->TableUpdates->update);
         
         return $array;
     }   

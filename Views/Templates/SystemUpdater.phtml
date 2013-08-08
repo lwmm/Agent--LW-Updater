@@ -9,8 +9,8 @@
         <label class="control-label" for="inputCharset">Zeichensatz</label>
         <div class="controls">
             <select id="inputCharset" name="inputCharset">
-                <option value="UTF-8">UTF-8</option>
-                <option value="ISO-8859-15">ISO-8859-15</option>
+                <option value="UTF-8" <?php if(!$this->charset || $this->charset == "UFT-8"): ?>selected="selected"<?php endif; ?>>UTF-8</option>
+                <option value="ISO-8859-15" <?php if($this->charset == "ISO-8859-15"): ?>selected="selected"<?php endif; ?>>ISO-8859-15</option>
             </select>
         </div>
     </div>
@@ -74,17 +74,21 @@
         font-weight: bold;
         color: darkred;
     }
+    #xmlResults .addable{
+        font-weight: bold;
+        color: darkblue;
+    }
     #xmlResults h3{text-align: center;}
 </style>
 <div id="xmlResults">
-    <?php if(isset($this->xmlResults["fileUpdates"])): ?>
+    <?php if(isset($this->xmlResults["fileUpdates"]) && !empty($this->xmlResults["fileUpdates"])): ?>
         <div>
             <h3>FileUpdates</h3><hr>
             <p style="text-align: center;">
                 <?php if($this->debug): ?>
-                    <span class="identical">Update m&ouml;glich</span> / <span class="error">Update nicht m&ouml;glich ( md5 Werte nicht identisch / Datei existiert nicht )</span>
+                    <span class="ok">Update m&ouml;glich</span> / <span class="error">Update nicht m&ouml;glich ( md5 Werte nicht identisch )</span> / <span class="addable">Erstellen m&ouml;glich ( fehlende Verzeichnisebenen + Datei )</span>
                 <?php else: ?>
-                    <span class="identical">Update erfolgreich</span> / <span class="error">Update verweigert ( md5 Werte nicht identisch / Datei existiert nicht )</span>
+                    <span class="ok">Update erfolgreich</span> / <span class="error">Update verweigert ( md5 Werte nicht identisch )</span> / <span class="addable">Erstellen erfolgreich ( fehlende Verzeichnisebenen + Datei )</span>
                 <?php endif; ?>
             </p>
             <table id="xmlResultTable" class="table table-bordered">
@@ -92,7 +96,7 @@
                     <tr>
                         <th>Datei</th>
                         <th>Md5 Xml-Content</th>
-                        <th>Md5 Datei</th>
+                        <th>Md5 Datei / Info Meldung</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -100,6 +104,8 @@
                         <?php
                             if($result["md5"] == $result["fileMd5"]){
                                 $class = "identical";
+                            }else if(!$result["fileMd5"] && $result["writeable"]){
+                                $class = "addable";
                             }else{
                                 $class = "error";
                             }
@@ -107,14 +113,73 @@
                         <tr>
                             <td><?php echo $result["filePath"]; ?></td>
                             <td class="<?php echo $class; ?>"><?php echo $result["md5"]; ?></td>
-                            <td class="<?php echo $class; ?>"><?php if($result["fileMd5"]){ echo $result["fileMd5"];}else{ echo "angegebene Datei existiert nicht !";}; ?></td>
+                            <td class="<?php echo $class; ?>"><?php if($result["fileMd5"]){ echo $result["fileMd5"];}else if(!$result["fileMd5"] && $result["writeable"]){ echo "Verziechnisebenden + Datei"; }else{ echo "angegebenes Verzeichnis ist nicht schreibbar !";}; ?></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
             </table>
         </div>
     <?php endif; ?>
-    <?php if(isset($this->xmlResults["tableUpdates"])): ?>
+    <?php if(isset($this->xmlResults["tableCreates"]) && !empty($this->xmlResults["tableCreates"])): ?>
+        <div>
+            <h3>TableCreates</h3><hr>
+            <p style="text-align: center;">
+                <?php if($this->debug): ?>
+                    <span class="ok">Create m&ouml;glich</span> / <span class="error">Create nicht m&ouml;glich ( Tabelle existiert )</span>
+                <?php else: ?>
+                    <span class="ok">Create erfolgreich</span> / <span class="error">Create verweigert ( Tabelle existiert )</span>
+                <?php endif; ?>
+            </p>
+            <table id="xmlResultTable" class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Nr.</th>
+                        <th>Tablename</th>
+                        <th>Statement</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php $i = 1; ?>
+                    <?php foreach ($this->xmlResults["tableCreates"] as $tablename => $values): ?>
+                        <?php
+                            if(strtolower(substr($values["statement"], 0 , strlen("ERROR"))) == "error"){
+                                $class = "error";
+                            }else{
+                                $class = "ok";
+                            }
+                        ?>
+                        <tr>
+                            <td><?php echo $i++; ?></td>
+                            <td><?php echo $tablename; ?></td>
+                            <?php if(!is_array($values["statement"])): ?>
+                                <td class="<?php echo $class; ?>"><?php echo $values["statement"];?></td>
+                            <?php else: ?>
+                                <td class="<?php echo $class; ?>">
+                                    <?php
+                                        foreach($values["statement"] as $key => $value){
+                                            if($key == "addai"){
+                                                $i = 0;
+                                                foreach($value as $v){
+                                                    if($i++ == 2){
+                                                        echo $v;
+                                                    }else{
+                                                        echo $v."<hr>";
+                                                    }
+                                                }
+                                            }else{
+                                                echo $value."<hr>";
+                                            }
+                                        }
+                                    ?>
+                                </td>
+                            <?php endif; ?>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    <?php endif; ?>
+    <?php if(isset($this->xmlResults["tableUpdates"]) && !empty($this->xmlResults["tableUpdates"])): ?>
         <div>
             <h3>TableUpdates</h3><hr>
             <p style="text-align: center;">

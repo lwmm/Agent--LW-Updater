@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Updates>
+    <FileUpdates>
+        <file>
+            <md5>4873ee2aabf80110bedf31a3a67750e5</md5>
+            <path>[resource]test.php</path>
+            <content><![CDATA[  ]]></content>
+        </file>
+    </FileUpdates>
+    <TableUpdates>
+        <update>
+            <updateTable>
+                <name>lw_master</name>
+                <fieldname>id</fieldname>
+                <type>number</type>
+                <size>11</size>
+                <null>false</null>
+            </updateTable>
+        </update>
+        <create>
+            <createTable name="lw_test">
+                <fields>
+                    <field name="id" type="number" size="11" special="auto_increment" />
+                    <field name="lw_object" type="text" size="55" />
+                    <pk>id</pk>
+                </fields>
+            </createTable>
+        </create>
+    </TableUpdates>
+</Updates>
