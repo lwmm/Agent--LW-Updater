@@ -1,3 +1,11 @@
+<script>
+    <?php if($this->sent && !$this->debug): ?>
+        $(document).ready(function(){
+            alert(unescape("Die m%F6glichen Updates wurden ausgef%FChrt %21"));
+        });
+    <?php endif; ?>
+</script>
+
 <form id="xmlForm" class="form-horizontal" action="<?php echo $this->actionUrl; ?>" method="POST" ENCTYPE="multipart/form-data">
     <div class="control-group">
         <label class="control-label" for="inputDebug">Debug</label>

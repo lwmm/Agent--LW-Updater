@@ -24,8 +24,7 @@ class UpdaterController
         $content = "";
         if ($this->request->getAlnum("module")) {
             $module = $this->request->getAlnum("module");
-        }
-        else {
+        } else {
             $module = "md5checker";
         }
 
@@ -38,7 +37,7 @@ class UpdaterController
                 $md5checkerView = new \AgentUpdater\Views\Md5Checker($this->config);
                 $content = $md5checkerView->render($array);
                 break;
-                
+
             case "systemupdater":
                 if ($this->request->getInt("sent")) {
                     $systemUpdaterController = new \AgentUpdater\Controller\SystemUpdaterController($this->config, $this->request, $this->db);

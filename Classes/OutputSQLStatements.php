@@ -38,13 +38,11 @@ class OutputSQLStatements
 
                 if (!$field) {
                     return "ERROR: FIELD NOT AVAILABLE";
-                }
-                else {
+                } else {
                     $sql = "ALTER TABLE " . $table . " ADD COLUMN " . $name . " " . $field;
                     if ($null) {
                         $sql.= " NULL ";
-                    }
-                    else {
+                    } else {
                         $sql.= " NOT NULL ";
                     }
                     return $sql;
@@ -61,8 +59,7 @@ class OutputSQLStatements
             case "number":
                 if ($size > 11) {
                     return " bigint(" . $size . ") ";
-                }
-                else {
+                } else {
                     return " int(" . $size . ") ";
                 }
                 break;
@@ -70,8 +67,7 @@ class OutputSQLStatements
             case "text":
                 if ($size > 255) {
                     return " text ";
-                }
-                else {
+                } else {
                     return " varchar(" . $size . ") ";
                 }
                 break;
@@ -105,10 +101,10 @@ class OutputSQLStatements
 
     public function createTable($tablename, $fields)
     {
-        if($this->isTableExisting($tablename)){
+        if ($this->isTableExisting($tablename)) {
             return "ERROR: TABLE EXISTING";
         }
-        
+
         $main = "";
         $foot = "";
 
@@ -121,8 +117,7 @@ class OutputSQLStatements
 
         if ($fields->pk && strlen($fields->pk) > 0) {
             $foot = " PRIMARY KEY (" . $fields->pk . ") ";
-        }
-        else {
+        } else {
             $main = substr($main, 0, -2) . " ";
         }
         $foot.= ") ";
@@ -138,8 +133,7 @@ class OutputSQLStatements
             case "number":
                 if ($field->attributes()->size > 11) {
                     $out.=" bigint(" . $field->attributes()->size . ") ";
-                }
-                else {
+                } else {
                     $out.= " int(" . $field->attributes()->size . ") ";
                 }
                 break;
@@ -147,8 +141,7 @@ class OutputSQLStatements
             case "text":
                 if ($field->attributes()->size > 255) {
                     $out.= " text ";
-                }
-                else {
+                } else {
                     $out.= " varchar(" . $field->attributes()->size . ") ";
                 }
                 break;

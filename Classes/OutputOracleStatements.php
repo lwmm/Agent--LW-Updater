@@ -37,8 +37,7 @@ class OutputOracleStatements
                 $sql = "ALTER TABLE " . $table . " ADD (" . strtoupper($name) . " " . $field;
                 if ($null) {
                     $sql.= " NULL ";
-                }
-                else {
+                } else {
                     $sql.= " NOT NULL ";
                 }
                 $sql.=")";
@@ -145,11 +144,11 @@ class OutputOracleStatements
     private function _addAutoIncrement($table)
     {
         $array = array();
-        
+
         $array["dropsequence"] = "DROP SEQUENCE " . $table . "_SEQ";
-        
+
         $array["createsequence"] = "CREATE SEQUENCE " . $table . "_SEQ START WITH 1 INCREMENT BY 1 MAXVALUE 1E27 MINVALUE 1 NOCACHE NOCYCLE ORDER";
-        
+
         $array["createtrigger"] = "CREATE OR REPLACE TRIGGER " . $table . "_ib BEFORE INSERT ON " . $table . " FOR EACH ROW  BEGIN IF :new.id IS null THEN select " . $table . "_SEQ.nextval into :new.id from dual; END IF; END;";
 
         return $array;

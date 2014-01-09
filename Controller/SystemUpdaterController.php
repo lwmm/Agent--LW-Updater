@@ -22,25 +22,24 @@ class SystemUpdaterController
     {
         $array = array();
         $xmlUploaded = false;
-        
+
         $fileDataArray = $this->request->getFileData("inputXMLFile");
         if (!empty($fileDataArray["name"])) {
             $xmlString = file_get_contents($fileDataArray["tmp_name"]);
             $xmlUploaded = true;
-        }
-        else if ($this->request->getRaw("inputXML") != "") {
+        } else if ($this->request->getRaw("inputXML") != "") {
             $xmlString = $this->request->getRaw("inputXML");
             $xmlUploaded = true;
         }
 
-        if($xmlUploaded){
+        if ($xmlUploaded) {
             $array["sent"] = true;
             $array["xmlResults"] = $this->prepareXML($xmlString);
             $array["xmlString"] = $xmlString;
             $array["debug"] = $this->debug;
             $array["charset"] = $this->request->getRaw("inputCharset");
         }
-        
+
         return $array;
     }
 
@@ -52,12 +51,12 @@ class SystemUpdaterController
 
         $prepareXMLClass = new \AgentUpdater\Classes\PrepareXML($this->config, $this->db, $this->request);
         $prepareXMLClass->setDebug($this->debug);
-        
+
         $array["fileUpdates"] = $prepareXMLClass->fileUpdates($xml->FileUpdates);
         $array["tableCreates"] = $prepareXMLClass->tableCreates($xml->TableUpdates->create);
         $array["tableUpdates"] = $prepareXMLClass->tableUpdates($xml->TableUpdates->update);
-        
+
         return $array;
-    }   
+    }
 
 }

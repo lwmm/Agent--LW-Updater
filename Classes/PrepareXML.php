@@ -19,8 +19,7 @@ class PrepareXML
 
         if ($this->config["lwdb"]["type"] == "mysql" || $this->config["lwdb"]["type"] == "mysqli") {
             $this->outputStatement = new \AgentUpdater\Classes\OutputSQLStatements($this->db);
-        }
-        else {
+        } else {
             $this->outputStatement = new \AgentUpdater\Classes\OutputOracleStatements($this->db);
         }
     }
@@ -52,8 +51,7 @@ class PrepareXML
             if (!$this->debug) {
                 if ($file->md5 == $fileMd5) {
                     $fileOperations->update($path, $charsetConverter->execute($this->request->getRaw("inputCharset"), $file->content));
-                }
-                else if (!$fileMd5) {
+                } else if (!$fileMd5) {
                     if (is_writable($this->config["path"][$pathPlaceholder])) {
                         $fileOperations->addStructure(trim($file->path), $pathPlaceholder, $charsetConverter->execute($this->request->getRaw("inputCharset"), $file->content));
                     }
@@ -85,10 +83,10 @@ class PrepareXML
     public function tableUpdates($xmlTableUpdates)
     {
         $array = array();
-
+        $i = 1;
         foreach ($xmlTableUpdates->updateTable as $table) {
             if (!array_key_exists("name", $table) || !array_key_exists("fieldname", $table) || !array_key_exists("type", $table)) {
-                die("XML Fehler : Im Tabellenupdate Nr. $i fehlt eines oder mehrere Plfichtfelder ( name, fieldname, type )");
+                die("XML Fehler : Im Tabellenupdate Nr. " . $i++ . " fehlt eines oder mehrere Plfichtfelder ( name, fieldname, type )");
             }
             $size = $null = false;
             $tableName = $this->db->getPrefix() . $table->name;
@@ -133,16 +131,14 @@ class PrepareXML
                     if ($this->config["lwdb"]["type"] == "mysql" || $this->config["lwdb"]["type"] == "mysqli") {
                         $this->db->setStatement($statement);
                         $this->db->pdbquery();
-                    }
-                    else {
+                    } else {
                         foreach ($statement as $key => $value) {
                             if ($key == "addai") {
                                 foreach ($value as $v) {
                                     $this->db->setStatement($v);
                                     $this->db->pdbquery();
                                 }
-                            }
-                            else {
+                            } else {
                                 $this->db->setStatement($value);
                                 $this->db->pdbquery();
                             }

@@ -7,16 +7,16 @@ class CharsetConverter
 
     public function execute($targetCharset, $content)
     {
-        if($this->isUtf8($content)){
-            if($targetCharset == "UTF-8"){
+        if ($this->isUtf8($content)) {
+            if ($targetCharset == "UTF-8") {
                 return $content;
-            }else {
+            } else {
                 return mb_convert_encoding($content, "ISO-8859-15", "UTF-8");
             }
-        }else{
-            if($targetCharset == "UTF-8"){
+        } else {
+            if ($targetCharset == "UTF-8") {
                 return utf8_encode($content);
-            }else{
+            } else {
                 return mb_convert_encoding(utf8_encode($content), "ISO-8859-15", "UTF-8");
             }
         }
@@ -29,17 +29,13 @@ class CharsetConverter
             $ord = ord($str[$i]);
             if ($ord < 0x80) { // 0bbbbbbb
                 continue;
-            }
-            elseif (($ord & 0xE0) === 0xC0 && $ord > 0xC1) { // 110bbbbb (exkl C0-C1)
+            } elseif (($ord & 0xE0) === 0xC0 && $ord > 0xC1) { // 110bbbbb (exkl C0-C1)
                 $n = 1;
-            }
-            elseif (($ord & 0xF0) === 0xE0) { // 1110bbbb
+            } elseif (($ord & 0xF0) === 0xE0) { // 1110bbbb
                 $n = 2;
-            }
-            elseif (($ord & 0xF8) === 0xF0 && $ord < 0xF5) { // 11110bbb (exkl F5-FF)
+            } elseif (($ord & 0xF8) === 0xF0 && $ord < 0xF5) { // 11110bbb (exkl F5-FF)
                 $n = 3;
-            }
-            else { // ungültiges UTF-8-Zeichen
+            } else { // ungültiges UTF-8-Zeichen
                 return false;
             }
 

@@ -37,8 +37,7 @@ class Md5CheckerController
 
         if ($type == "file") {
             $md5 = $contentToMd5->getMd5FromFile($string);
-        }
-        else {
+        } else {
             $md5 = $contentToMd5->getMd5FromString($string);
         }
 
