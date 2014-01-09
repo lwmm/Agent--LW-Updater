@@ -25,7 +25,7 @@
     <div class="control-group">
         <label class="control-label" for="inputXML">XML</label>
         <div class="controls">
-            <textarea id="inputXML" name="inputXML" style="width: 550px;height: 300px;"><?php if (isset($this->xmlString)) echo $this->xmlString; ?></textarea>
+            <textarea id="inputXML" name="inputXML" style="width: 550px;height: 300px;"><?php if (isset($this->xmlString)) echo htmlentities($this->xmlString); ?></textarea>
         </div>
     </div>
     <div class="control-group">
@@ -120,7 +120,7 @@
                         ?>
                         <tr>
                             <td><?php echo $result["filePath"]; ?></td>
-                            <td class="<?php echo $class; ?>"><?php echo $result["md5"]; ?></td>
+                            <td class="<?php echo $class; ?>"><?php if(!empty($result["md5"])){echo $result["md5"];}else{ echo "&nbsp;";} ?></td>
                             <td class="<?php echo $class; ?>"><?php if($result["fileMd5"]){ echo $result["fileMd5"];}else if(!$result["fileMd5"] && $result["writeable"]){ echo "Verziechnisebenden + Datei"; }else{ echo "angegebenes Verzeichnis ist nicht schreibbar !";}; ?></td>
                         </tr>
                     <?php endforeach; ?>

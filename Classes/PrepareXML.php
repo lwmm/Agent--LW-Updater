@@ -49,12 +49,12 @@ class PrepareXML
             );
 
             if (!$this->debug) {
-                if ($file->md5 == $fileMd5) {
-                    $fileOperations->update($path, $charsetConverter->execute($this->request->getRaw("inputCharset"), $file->content));
-                } else if (!$fileMd5) {
+                if (!$fileMd5) {
                     if (is_writable($this->config["path"][$pathPlaceholder])) {
                         $fileOperations->addStructure(trim($file->path), $pathPlaceholder, $charsetConverter->execute($this->request->getRaw("inputCharset"), $file->content));
                     }
+                } else if ($file->md5 == $fileMd5) {
+                    $fileOperations->update($path, $charsetConverter->execute($this->request->getRaw("inputCharset"), $file->content));
                 }
             }
         }
