@@ -7,10 +7,7 @@ class ContentToMd5
 
     public function getMd5FromString($string)
     {
-        #die steuerzeichen die trim() am anfang und ende entfernt ( wird auf den gesamten string angewendet )
-        $array = array(" ", "\t", "\n", "\r", "\0", "\x0B");
-        
-        return md5(str_replace($array, "", $string));
+        return md5(str_replace("\r", "", $string));
     }
 
     public function getMd5FromFile($path, $charset = false)
@@ -28,7 +25,7 @@ class ContentToMd5
                 $content .= fgets($file);
             }
             fclose($file);
-            return $this->getMd5FromString($charsetConverter->execute($charset, $content));
+            return md5($charsetConverter->execute($charset, $content));
         }
         return false;
     }
