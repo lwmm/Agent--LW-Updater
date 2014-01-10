@@ -4,12 +4,19 @@ namespace AgentUpdater\Views;
 
 class SystemUpdater
 {
+    public function __construct()
+    {
+        $this->config = \lw_registry::getInstance()->getEntry("config");
+    }
 
     public function render($array)
     {
         $view = new \lw_view(dirname(__FILE__) . '/Templates/SystemUpdater.phtml');
         $view->actionUrl = $this->config["url"]["client"] . "admin.php?obj=updater&module=systemupdater";
+        $view->iconWriteable = $this->config["url"]["media"]."pics/fatcow_icons/16x16_0020/accept.png";
+        $view->iconNotWriteable = $this->config["url"]["media"]."pics/fatcow_icons/16x16_0180/cancel.png";
 
+        $view->error = $array["xmlResults"]["error"];
         $view->sent = $array["sent"];
         $view->xmlResults = $array["xmlResults"];
         $view->xmlString = $array["xmlString"];

@@ -31,7 +31,6 @@ class OutputSQLStatements
 
     public function addField($table, $name, $type, $size = false, $null = false)
     {
-        #if ($this->db->tableExists($table)) {
         if ($this->isTableExisting($table)) {
             if (!$this->fieldExists($table, $name)) {
                 $field = $this->setField($type, $size);

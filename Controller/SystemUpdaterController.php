@@ -55,6 +55,18 @@ class SystemUpdaterController
         $array["fileUpdates"] = $prepareXMLClass->fileUpdates($xml->FileUpdates);
         $array["tableCreates"] = $prepareXMLClass->tableCreates($xml->TableUpdates->create);
         $array["tableUpdates"] = $prepareXMLClass->tableUpdates($xml->TableUpdates->update);
+        $array["error"] = $prepareXMLClass->getError();
+        
+        #print_r($array);die();
+
+        if (!$this->debug && !$array["error"]) {
+            $fileUpdater = new \AgentUpdater\Model\FileUpdates($this->config, $this->request);
+            $fileUpdater->execute($array["fileUpdates"]);
+            
+            $tableUpdater = new \AgentUpdater\Model\TableUpdates($this->config, $this->db);
+            $tableUpdater->tableUpdate($array["tableUpdates"]);
+            $tableUpdater->tableCreate($array["tableCreates"]);
+        }
 
         return $array;
     }

@@ -1,7 +1,12 @@
 <script>
-    <?php if($this->sent && !$this->debug): ?>
+    <?php if($this->sent && !$this->debug && !$this->error ): ?>
         $(document).ready(function(){
-            alert(unescape("Die m%F6glichen Updates wurden ausgef%FChrt %21"));
+            alert(unescape("Die Updates wurden ausgef%FChrt %21"));
+        });
+    <?php endif; ?>
+    <?php if($this->sent && $this->error): ?>
+        $(document).ready(function(){
+            alert(unescape("Die Updates k%F6nnen nicht ausgef%FChrt werden !\nEs sind Konflikte zwischen dem Update-Xml und dem System aufgetreten."));
         });
     <?php endif; ?>
 </script>
@@ -94,9 +99,9 @@
             <h3>FileUpdates</h3><hr>
             <p style="text-align: center;">
                 <?php if($this->debug): ?>
-                    <span class="ok">Update m&ouml;glich</span> / <span class="error">Update nicht m&ouml;glich ( md5 Werte nicht identisch )</span> / <span class="addable">Erstellen m&ouml;glich ( fehlende Verzeichnisebenen + Datei )</span>
+                    <span class="ok">Update m&ouml;glich</span> / <span class="error">Update nicht m&ouml;glich</span>
                 <?php else: ?>
-                    <span class="ok">Update erfolgreich</span> / <span class="error">Update verweigert ( md5 Werte nicht identisch )</span> / <span class="addable">Erstellen erfolgreich ( fehlende Verzeichnisebenen + Datei )</span>
+                    <span class="ok">Update erfolgreich</span>
                 <?php endif; ?>
             </p>
             <table id="xmlResultTable" class="table table-bordered">
@@ -105,23 +110,37 @@
                         <th>Datei</th>
                         <th>Md5 Xml-Content</th>
                         <th>Md5 Datei / Info Meldung</th>
+                        <th>Fehler-Info</th>
+                        <th style="width: 50px;">Schreibbar</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php foreach ($this->xmlResults["fileUpdates"] as $result): ?>
                         <?php
-                            if($result["md5"] == $result["fileMd5"]){
+                            if($result["md5"] == $result["fileMd5"] && $result["writeable"]){
                                 $class = "identical";
-                            }else if(!$result["fileMd5"] && $result["writeable"]){
-                                $class = "addable";
                             }else{
                                 $class = "error";
                             }
                         ?>
                         <tr>
-                            <td><?php echo $result["filePath"]; ?></td>
+                            <td class="<?php echo $class; ?>"><?php echo $result["filePath"]; ?></td>
                             <td class="<?php echo $class; ?>"><?php if(!empty($result["md5"])){echo $result["md5"];}else{ echo "&nbsp;";} ?></td>
-                            <td class="<?php echo $class; ?>"><?php if($result["fileMd5"]){ echo $result["fileMd5"];}else if(!$result["fileMd5"] && $result["writeable"]){ echo "Verziechnisebenden + Datei"; }else{ echo "angegebenes Verzeichnis ist nicht schreibbar !";}; ?></td>
+                            <td class="<?php echo $class; ?>"><?php if($result["fileMd5"]){ echo $result["fileMd5"];}else{echo "&nbsp;";}?></td>
+                            <td class="<?php echo $class; ?>"><?php 
+                                if($result["writeable"] && empty($result["md5"]) && empty($result["fileMd5"])){
+                                    echo "Anlegen m&ouml;glich";
+                                } else if ($result["writeable"] && $result["md5"] == $result["fileMd5"]){
+                                    echo "Update m&ouml;glich";
+                                } else if ($result["writeable"] && $result["md5"] != $result["fileMd5"] && !empty ($result["md5"])){
+                                    echo "Md5-Werte sind nicht identisch";
+                                } else if ($result["writeable"] && $result["md5"] != $result["fileMd5"]){
+                                    echo "Datei existiert bereits";
+                                } else if (!$result["writeable"]){
+                                    echo "Schreiben nicht m&ouml;glich";
+                                }
+                            ?></td>
+                            <td><img src="<?php if($result["writeable"]) { echo $this->iconWriteable; } else { echo $this->iconNotWriteable;} ?>" /></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
@@ -133,12 +152,12 @@
             <h3>TableCreates</h3><hr>
             <p style="text-align: center;">
                 <?php if($this->debug): ?>
-                    <span class="ok">Create m&ouml;glich</span> / <span class="error">Create nicht m&ouml;glich ( Tabelle existiert )</span>
+                    <span class="ok">Create m&ouml;glich</span> / <span class="error">Create nicht m&ouml;glich</span>
                 <?php else: ?>
-                    <span class="ok">Create erfolgreich</span> / <span class="error">Create verweigert ( Tabelle existiert )</span>
+                    <span class="ok">Create erfolgreich</span>
                 <?php endif; ?>
             </p>
-            <table id="xmlResultTable" class="table table-bordered">
+            <table id="xmlResultTable2" class="table table-bordered">
                 <thead>
                     <tr>
                         <th>Nr.</th>
@@ -157,8 +176,8 @@
                             }
                         ?>
                         <tr>
-                            <td><?php echo $i++; ?></td>
-                            <td><?php echo $tablename; ?></td>
+                            <td class="<?php echo $class; ?>"><?php echo $i++; ?></td>
+                            <td class="<?php echo $class; ?>"><?php echo $tablename; ?></td>
                             <?php if(!is_array($values["statement"])): ?>
                                 <td class="<?php echo $class; ?>"><?php echo $values["statement"];?></td>
                             <?php else: ?>
@@ -194,10 +213,10 @@
                 <?php if($this->debug): ?>
                     <span class="ok">Update m&ouml;glich</span> / <span class="error">Update nicht m&ouml;glich</span>
                 <?php else: ?>
-                    <span class="ok">Update erfolgreich</span> / <span class="error">Update verweigert</span>
+                    <span class="ok">Update erfolgreich</span>
                 <?php endif; ?>
             </p>
-            <table id="xmlResultTable" class="table table-bordered">
+            <table id="xmlResultTable3" class="table table-bordered">
                 <thead>
                     <tr>
                         <th>Nr.</th>
@@ -219,10 +238,10 @@
                                 }
                             ?>
                             <tr>
-                                <td><?php echo $i++; ?></td>
-                                <td><?php echo $tablename; ?></td>
-                                <td><?php echo $value["fieldname"]; ?></td>
-                                <td><?php echo $value["type"]; ?></td>
+                                <td class="<?php echo $class; ?>"><?php echo $i++; ?></td>
+                                <td class="<?php echo $class; ?>"><?php echo $tablename; ?></td>
+                                <td class="<?php echo $class; ?>"><?php echo $value["fieldname"]; ?></td>
+                                <td class="<?php echo $class; ?>"><?php echo $value["type"]; ?></td>
                                 <td class="<?php echo $class; ?>"><?php echo $value["statement"]; ?></td>
                             </tr>
                         <?php endforeach; ?>

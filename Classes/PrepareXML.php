@@ -10,9 +10,11 @@ class PrepareXML
     protected $debug = false;
     protected $request;
     protected $outputStatement;
+    protected $errorOccuredUpdateNotAllowed;
 
     public function __construct($config, $db, $request)
     {
+        $this->errorOccuredUpdateNotAllowed = false;
         $this->config = $config;
         $this->db = $db;
         $this->request = $request;
@@ -29,33 +31,51 @@ class PrepareXML
         $this->debug = $debug;
     }
 
+    public function getError()
+    {
+        return $this->errorOccuredUpdateNotAllowed;
+    }
+
     public function fileUpdates($xmlFileUpdates)
     {
-        $fileOperations = new \AgentUpdater\Classes\FileOperations($this->config);
-        $charsetConverter = new \AgentUpdater\Classes\CharsetConverter();
-
         $array = array();
+        $notEveryPathIsWriteable = false;
+        $notEveryMd5IsIdentical = false;
 
         foreach ($xmlFileUpdates->file as $file) {
             $pathPlaceholder = $this->getPathPlaceholderFromXmlPath(trim($file->path));
             $path = $this->replacePathPlaceholderWithConfigPathEntry(trim($file->path), $pathPlaceholder);
             $fileMd5 = $this->getMd5($path);
 
+            $writeable = false;
+
+            if (!is_file($path)) {
+                $dir = substr($path, 0, strripos($path, "/") + 1);
+                if (is_writable($dir)) {
+                    $writeable = true;
+                } else {
+                    $this->errorOccuredUpdateNotAllowed = $notEveryPathIsWriteable = true;
+                }
+            } else {
+                if (is_writable($path)) {
+                    $writeable = true;
+                } else {
+                    $this->errorOccuredUpdateNotAllowed = $notEveryPathIsWriteable = true;
+                }
+            }
+
             $array[] = array(
                 "md5" => (string) $file->md5,
                 "fileMd5" => $fileMd5,
                 "filePath" => $path,
-                "writeable" => is_writable($this->config["path"][$pathPlaceholder])
+                "content" => $file->content,
+                "writeable" => $writeable,
+                "pathPlaceholder" => $pathPlaceholder,
+                "pathUsedInXml" => trim($file->path)
             );
 
-            if (!$this->debug) {
-                if (!$fileMd5) {
-                    if (is_writable($this->config["path"][$pathPlaceholder])) {
-                        $fileOperations->addStructure(trim($file->path), $pathPlaceholder, $charsetConverter->execute($this->request->getRaw("inputCharset"), $file->content));
-                    }
-                } else if ($file->md5 == $fileMd5) {
-                    $fileOperations->update($path, $charsetConverter->execute($this->request->getRaw("inputCharset"), $file->content));
-                }
+            if ((string) $file->md5 != $fileMd5) {
+                $this->errorOccuredUpdateNotAllowed = $notEveryMd5IsIdentical = true;
             }
         }
 
@@ -98,6 +118,12 @@ class PrepareXML
 
             if (array_key_exists("null", $table)) {
                 $null = $table->null;
+                
+                if($null == "false"){
+                    $null = false;
+                }else{
+                    $null = true;
+                }
             }
 
             $statement = $this->outputStatement->addField($tableName, $table->fieldname, $table->type, $size, $null);
@@ -108,11 +134,8 @@ class PrepareXML
                 "type" => $table->type . " ( $size )"
             );
 
-            if (!$this->debug) {
-                if (strtolower(substr($statement, 0, strlen("ERROR"))) != "error") {
-                    $this->db->setStatement($statement);
-                    $this->db->pdbquery();
-                }
+            if (strtolower(substr($statement, 0, strlen("ERROR"))) == "error") {
+                $this->errorOccuredUpdateNotAllowed = true;
             }
         }
         return $array;
@@ -126,25 +149,8 @@ class PrepareXML
             $statement = $this->outputStatement->createTable($table->attributes()->name, $table->fields);
             $array[(string) $table->attributes()->name] = array("statement" => $statement);
 
-            if (!$this->debug) {
-                if (strtolower(substr($statement, 0, strlen("ERROR"))) != "error") {
-                    if ($this->config["lwdb"]["type"] == "mysql" || $this->config["lwdb"]["type"] == "mysqli") {
-                        $this->db->setStatement($statement);
-                        $this->db->pdbquery();
-                    } else {
-                        foreach ($statement as $key => $value) {
-                            if ($key == "addai") {
-                                foreach ($value as $v) {
-                                    $this->db->setStatement($v);
-                                    $this->db->pdbquery();
-                                }
-                            } else {
-                                $this->db->setStatement($value);
-                                $this->db->pdbquery();
-                            }
-                        }
-                    }
-                }
+            if (strtolower(substr($statement, 0, strlen("ERROR"))) == "error") {
+                $this->errorOccuredUpdateNotAllowed = true;
             }
         }
         return $array;
